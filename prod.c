@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <limits.h>
 
 #define BUFFER_SIZE 8
-#define NUM_PRODUCERS 2
-#define NUM_CONSUMERS 2
+#define NUM_PRODUCERS 100
+#define NUM_CONSUMERS 100
+#define DATA_TO_PRODUCE 8192
 
 int buffer[BUFFER_SIZE];
 int in = 0;
@@ -13,10 +15,8 @@ int out = 0;
 sem_t mutex, empty, full;
 
 void *producer(void *arg) {
-    int item;
-
-    for (int i = 0; i < 10; i++) {
-        item = i; // Produce item
+    for (int i = 0; i < DATA_TO_PRODUCE; i++) {
+        int item = i;
 
         sem_wait(&empty); // Wait if buffer is full
         sem_wait(&mutex); // Enter critical section
@@ -25,30 +25,33 @@ void *producer(void *arg) {
         buffer[in] = item;
         in = (in + 1) % BUFFER_SIZE;
 
-        printf("Produced: %d\n", item);
-
         sem_post(&mutex); // Exit critical section
         sem_post(&full);  // Signal that the buffer is not empty
+
+        // Simulate CPU processing
+        for (int j = 0; j < 10000; j++);
     }
 
     pthread_exit(NULL);
 }
 
 void *consumer(void *arg) {
-    int item;
-
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < DATA_TO_PRODUCE; i++) {
         sem_wait(&full);  // Wait if buffer is empty
         sem_wait(&mutex); // Enter critical section
 
         // Remove item from the buffer
-        item = buffer[out];
+        int item = buffer[out];
         out = (out + 1) % BUFFER_SIZE;
-
-        printf("Consumed: %d\n", item);
 
         sem_post(&mutex); // Exit critical section
         sem_post(&empty); // Signal that the buffer is not full
+
+        // Simulate CPU processing
+        for (int j = 0; j < 10000; j++);
+
+        // Consume item
+        printf("Consumed: %d\n", item);
     }
 
     pthread_exit(NULL);
