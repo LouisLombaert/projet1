@@ -1,5 +1,7 @@
 #!/bin/bash
 
+make
+
 # Function to run a benchmark for a given program and configuration
 run_benchmark() {
     PROGRAM="$1"
