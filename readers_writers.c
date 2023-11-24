@@ -6,10 +6,13 @@
 #define NUM_READS 2560
 #define NUM_WRITES 640
 
-int shared_data = 0;
 int readers_count = 0;
+int writers_count = 0;
+int write_count = 0;
+int read_count = 0;
 
-sem_t mutex, write_mutex, read_mutex;
+sem_t write_sem, read_sem; // 3 sems ??
+pthread_mutex_t read_mutex, write_mutex, z;
 
 void simulateAccess() {
     for (int i = 0; i < 10000; ++i);
@@ -18,30 +21,38 @@ void simulateAccess() {
 void* reader(void* arg) {
     int reader_id = *((int*)arg);
 
-    while (1) {
-        sem_wait(&read_mutex);
-        sem_wait(&mutex);
+    for (int i=0; i<NUM_READS; i++) {
+        pthread_mutex_lock(&z);
+        sem_wait(&read_sem);
+        pthread_mutex_lock(&read_mutex);
         readers_count++;
 
         if (readers_count == 1) {
-            sem_wait(&write_mutex);
+            sem_wait(&write_sem);
         }
 
-        sem_post(&mutex);
-        sem_post(&read_mutex);
+        pthread_mutex_unlock(&read_mutex);
+        sem_post(&read_sem);
+        pthread_mutex_unlock(&z);
+        read_count++;
 
-        // Read shared data
-        //simulateAccess();
-        printf("Reader %d read data: %d\n", reader_id, shared_data);
+        ///////////////////////////////
+        // READ()
 
-        sem_wait(&mutex);
+        simulateAccess();
+        printf("Reader %d read data: %d\n", reader_id, read_count);
+
+        // Fin READ
+        //////////////////////////////
+
+        pthread_mutex_lock(&read_mutex);
         readers_count--;
 
         if (readers_count == 0) {
-            sem_post(&write_mutex);
+            sem_post(&write_sem);
         }
 
-        sem_post(&mutex);
+        pthread_mutex_unlock(&read_mutex);
     }
 
     return NULL;
@@ -50,15 +61,32 @@ void* reader(void* arg) {
 void* writer(void* arg) {
     int writer_id = *((int*)arg);
 
-    while (1) {
-        sem_wait(&write_mutex);
+    for (int i=0; i<NUM_WRITES; i++) {
+        pthread_mutex_lock(&write_mutex);
+        writers_count++;
+        if (writers_count == 1){
+            sem_wait(&read_sem);
+        }
+        pthread_mutex_unlock(&write_mutex);
+        sem_wait(&write_sem);
+        write_count++;
 
-        // Write to shared data
-        //simulateAccess();
-        shared_data++;
-        printf("Writer %d wrote data: %d\n", writer_id, shared_data);
+        ///////////////////////////////////
+        //  WRITE()
 
-        sem_post(&write_mutex);
+        simulateAccess();
+        printf("Writer %d wrote data: %d\n", writer_id, write_count);
+
+        //  FIN WRITE
+        //////////////////////////////////
+
+        sem_post(&write_sem);
+        pthread_mutex_lock(&write_mutex);
+        writers_count--;
+        if (writers_count == 0){
+            sem_post(&read_sem);
+        }
+        pthread_mutex_unlock(&write_mutex);
     }
 
     return NULL;
@@ -81,9 +109,27 @@ int main(int argc, char* argv[]) {
     pthread_t readers[num_readers], writers[num_writers];
     int reader_ids[num_readers], writer_ids[num_writers];
 
-    sem_init(&mutex, 0, 1);
-    sem_init(&write_mutex, 0, 1);
-    sem_init(&read_mutex, 0, 1);
+    //sem_init(&mutex, 0, 1);
+    sem_init(&write_sem, 0, 1);
+    sem_init(&read_sem, 0, 1);
+    
+    if (pthread_mutex_init(&read_mutex, NULL) != 0) {
+        // Gestion de l'erreur d'initialisation
+        printf("erreur lors de l'init du read mutex");
+        return 1;
+    }
+
+    if (pthread_mutex_init(&write_mutex, NULL) != 0) {
+        // Gestion de l'erreur d'initialisation
+        printf("erreur lors de l'init du write mutex");
+        return 1;
+    }
+
+    if (pthread_mutex_init(&z, NULL) != 0) {
+        // Gestion de l'erreur d'initialisation
+        printf("erreur lors de l'init du mutex z");
+        return 1;
+    }
 
     // Create reader threads
     for (int i = 0; i < num_readers; ++i) {
@@ -107,9 +153,12 @@ int main(int argc, char* argv[]) {
         pthread_join(writers[i], NULL);
     }
 
-    sem_destroy(&mutex);
-    sem_destroy(&write_mutex);
-    sem_destroy(&read_mutex);
+    //sem_destroy(&mutex);
+    sem_destroy(&write_sem);
+    sem_destroy(&read_sem);
+    pthread_mutex_destroy(&read_mutex);
+    pthread_mutex_destroy(&write_mutex);
+    pthread_mutex_destroy(&z);
 
     return 0;
 }
