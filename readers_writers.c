@@ -19,7 +19,7 @@ void simulateAccess() {
 }
 
 void* reader(void* arg) {
-    int reader_id = *((int*)arg);
+    //int reader_id = *((int*)arg);
 
     for (int i=0; i<NUM_READS; i++) {
         pthread_mutex_lock(&z);
@@ -40,7 +40,7 @@ void* reader(void* arg) {
         // READ()
 
         simulateAccess();
-        printf("Reader %d read data: %d\n", reader_id, read_count);
+        //printf("Reader %d read data: %d\n", reader_id, read_count);
 
         // Fin READ
         //////////////////////////////
@@ -59,7 +59,7 @@ void* reader(void* arg) {
 }
 
 void* writer(void* arg) {
-    int writer_id = *((int*)arg);
+    //int writer_id = *((int*)arg);
 
     for (int i=0; i<NUM_WRITES; i++) {
         pthread_mutex_lock(&write_mutex);
@@ -75,7 +75,7 @@ void* writer(void* arg) {
         //  WRITE()
 
         simulateAccess();
-        printf("Writer %d wrote data: %d\n", writer_id, write_count);
+        //printf("Writer %d wrote data: %d\n", writer_id, write_count);
 
         //  FIN WRITE
         //////////////////////////////////

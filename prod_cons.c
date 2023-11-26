@@ -38,7 +38,6 @@ void* consumer(void* arg) {
         sem_wait(&full);
         sem_wait(&mutex);
 
-        int data = buffer[out];
         out = (out + 1) % BUFFER_SIZE;
 
         sem_post(&mutex);
