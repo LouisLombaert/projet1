@@ -1,52 +1,42 @@
+import pandas as pd
 import matplotlib.pyplot as plt
-import csv
-from locale import atof
-import numpy as np
 
-def plot_csv(csv_file, title, subplot_index):
-    threads = []
-    avg_times = []
-    std_devs = []
+# Fonction pour lire un fichier CSV et renvoyer un DataFrame
+def read_csv(file_path):
+    return pd.read_csv(file_path, header=None, names=['N', 'S'])
 
-    with open(csv_file, 'r') as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip headers
-        for row in reader:
-            threads.append(int(row[0]))
-            avg_times.append(atof(row[1]))
+# Liste des fichiers CSV pour chaque version (avec et sans lock)
+files_without_lock = ['philo_time.csv', 'prod_cons_time.csv', 'readers_writers_time.csv']
+files_with_lock = ['philo_time_lock.csv', 'prod_cons_time_lock.csv', 'readers_writers_time_lock.csv']
 
-    # Calculate standard deviation
-    std_dev = np.std(avg_times)
+# Fonction pour créer un graphique à partir des données
+def plot_graph(ax, dataframes, labels, title):
+    for df, label in zip(dataframes, labels):
+        ax.plot(df['N'], df['S'], label=label)
 
-    # Create a subplot
-    plt.subplot(3, 2, subplot_index)  # Changed to 3 rows, 2 columns
+    ax.set_xlabel('Nombre de Threads')
+    ax.set_ylabel('Temps Moyen (Sec)')
+    ax.set_title(title)
+    ax.legend()
+    ax.grid(True)
 
-    plt.errorbar(threads, avg_times, yerr=std_dev, label=title, marker='o', linestyle='-')
-    
-    plt.xlabel('Number of Threads')
-    plt.ylabel('Average Time (sec)')
-    plt.title(f'Performance - {title}')
-    plt.legend()
-    plt.grid(True)
-    plt.ylim(bottom=0)  # Ensure y-axis starts at 0
+# Lire les fichiers CSV
+dataframes_without_lock = [read_csv(file) for file in files_without_lock]
+dataframes_with_lock = [read_csv(file) for file in files_with_lock]
 
-# Plot for Philosophers
-plot_csv('philo_time.csv', 'Philosophers', 1)
+# Labels pour les graphiques
+labels_without_lock = ['Philosophes', 'Producteurs/Consommateur', 'Readers/Writers']
+labels_with_lock = ['Philosophes avec Lock', 'Producteurs/Consommateur avec Lock', 'Readers/Writers avec Lock']
 
-# Plot for Prod/Cons
-plot_csv('prod_cons_time.csv', 'Producers/Consumers', 3)
+# Créer une seule figure
+fig, axs = plt.subplots(2, 1, figsize=(12, 10))
 
-# Plot for Readers/Writers
-plot_csv('readers_writers_time.csv', 'Readers/Writers', 5)
+# Créer les graphiques
+plot_graph(axs[0], dataframes_without_lock, labels_without_lock, 'Performance')
+plot_graph(axs[1], dataframes_with_lock, labels_with_lock, 'Performance avec Lock')
 
-# Plot for Philosophers
-plot_csv('philo_time_lock.csv', 'Philosophers Lock', 2)
+# Ajuster l'espacement entre les sous-graphiques
+plt.tight_layout()
 
-# Plot for Prod/Cons
-plot_csv('prod_cons_time_lock.csv', 'Producers/Consumers Lock', 4)
-
-# Plot for Readers/Writers Locker
-plot_csv('readers_writers_time_lock.csv', 'Readers/Writers', 6)
-
-plt.tight_layout()  # Adjust layout to prevent overlapping
+# Afficher la figure
 plt.show()

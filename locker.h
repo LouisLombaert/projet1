@@ -1,7 +1,15 @@
 #ifndef LOCKER_H
 #define LOCKER_H
 
-void locker_lock(volatile int* lock);
-void locker_unlock(volatile int* lock);
+#include <stdlib.h>
 
-#endif
+typedef struct _locker {
+    int lock;
+} locker_t;
+
+locker_t *init_lock();
+void destroy_lock(locker_t *locker);
+int lock(locker_t *locker);
+int unlock(locker_t *locker);
+
+#endif // LOCKER_H
