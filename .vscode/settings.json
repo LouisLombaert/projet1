@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "*.dfy": "dafny",
-        "sem.h": "c",
-        "locker.h": "c",
-        "semaphore.h": "c"
-    }
-}
