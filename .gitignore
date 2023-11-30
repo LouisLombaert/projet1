@@ -6,3 +6,11 @@ readers_writers_time.csv
 philosophers
 prod_cons
 readers_writers
+
+philosophers_lock
+prod_cons_lock
+readers_writers_lock
+
+philosophers_sem
+prod_cons_sem
+readers_writers_sem
