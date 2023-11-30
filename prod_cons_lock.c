@@ -9,10 +9,11 @@
 #define BUFFER_SIZE 8
 
 int cycle_counter = 0;
-pthread_mutex_t cycle_counter_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+locker_t cycle_counter_lock;
+locker_t buffer_lock;
 
 volatile int* buffer;
-volatile int buffer_lock = 0;
 volatile int in = 0, out = 0;
 
 void simulateProcessing() {
@@ -24,14 +25,14 @@ void* producer(void* arg) {
     int data_count = (6400 / num_threads); // Calculate data_count here based on num_threads
 
     for (int i = 0; i < data_count; ++i) {
-        locker_lock(&buffer_lock);
+        lock(&buffer_lock);
 
         buffer[in] = i;
         in = (in + 1) % BUFFER_SIZE;
 
         simulateProcessing();
 
-        locker_unlock(&buffer_lock);
+        unlock(&buffer_lock);
     }
 
     return NULL;
@@ -42,13 +43,13 @@ void* consumer(void* arg) {
     int data_count = (6400 / num_threads); // Calculate data_count here based on num_threads
 
     for (int i = 0; i < data_count; ++i) {
-        locker_lock(&buffer_lock);
+        lock(&buffer_lock);
 
         out = (out + 1) % BUFFER_SIZE;
 
         simulateProcessing();
 
-        locker_unlock(&buffer_lock);
+        unlock(&buffer_lock);
     }
 
     return NULL;
@@ -73,8 +74,9 @@ int main(int argc, char* argv[]) {
     int* producer_ids = malloc(num_producers * sizeof(int));
     int* consumer_ids = malloc(num_consumers * sizeof(int));
 
-    buffer_lock = 0;
     buffer = malloc(BUFFER_SIZE * sizeof(volatile int));
+    locker_t* buffer_lock = init_lock();
+    locker_t* cycle_counter_lock = init_lock();
 
     // Create producer threads
     for (int i = 0; i < num_producers; ++i) {
@@ -97,6 +99,9 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < num_consumers; ++i) {
         pthread_join(consumer_threads[i], NULL);
     }
+
+    destroy_lock(buffer_lock);
+    destroy_lock(cycle_counter_lock);
 
     free(producer_threads);
     free(consumer_threads);
