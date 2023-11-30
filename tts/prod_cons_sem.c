@@ -1,5 +1,5 @@
-#include "locker.h"
-#include "sem.h"
+#include "../sem.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 

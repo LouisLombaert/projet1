@@ -1,9 +1,7 @@
-// combined_prod_cons.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <string.h>
-#include "locker.h"
+#include "../locker.h"
 
 #define NUM_CYCLES 1000000
 #define BUFFER_SIZE 8
@@ -17,12 +15,12 @@ volatile int* buffer;
 volatile int in = 0, out = 0;
 
 void simulateProcessing() {
-    for (int i = 0; i < 10000; ++i);
+    for (int i = 0; i < 10000; ++i) {}
 }
 
 void* producer(void* arg) {
     int num_threads = *((int*)arg);
-    int data_count = (6400 / num_threads); // Calculate data_count here based on num_threads
+    int data_count = (6400 / num_threads);
 
     for (int i = 0; i < data_count; ++i) {
         lock(&buffer_lock);
@@ -40,7 +38,7 @@ void* producer(void* arg) {
 
 void* consumer(void* arg) {
     int num_threads = *((int*)arg);
-    int data_count = (6400 / num_threads); // Calculate data_count here based on num_threads
+    int data_count = (6400 / num_threads);
 
     for (int i = 0; i < data_count; ++i) {
         lock(&buffer_lock);

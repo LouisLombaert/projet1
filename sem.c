@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "sem.h"
-#include "locker.h"
+#include "locker_tts.h"
 
 typedef struct sem_t {
     long int val;

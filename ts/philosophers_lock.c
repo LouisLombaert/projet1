@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <unistd.h>
-#include <string.h>
-#include "locker.h"
+#include "../locker.h"
 
 #define NUM_CYCLES 1000000
 
 int cycle_counter = 0;
 locker_t cycle_counter_lock;
-locker_t** forks; // Changed to volatile int
+locker_t** forks;
 int num_philosophers;
 
-void* philosopher(void* arg) {
+void* philosophers(void* arg) {
     int id = *((int*)arg);
     int left_fork = id;
     int right_fork = (id + 1) % num_philosophers;
@@ -42,6 +40,29 @@ void* philosopher(void* arg) {
     return NULL;
 }
 
+void *philosopher(void *arg) {
+
+    int *id = (int *) arg;
+    int left_stick = *id;
+    int right_stick = (*id + 1) % num_philosophers;
+
+
+    for (int i = 0; i < NUM_CYCLES; ++i) {
+
+        if (left_stick < right_stick) {
+            lock(forks[left_stick]);
+            lock(forks[right_stick]);
+        } else {
+            lock(forks[right_stick]);
+            lock(forks[left_stick]);
+        }
+
+        unlock(forks[left_stick]);
+        unlock(forks[right_stick]);
+    }
+    return NULL;
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <number_of_philosophers>\n", argv[0]);
@@ -50,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     num_philosophers = atoi(argv[1]);
 
-    if (num_philosophers < 1) {
+    if (num_philosophers <= 1) {
         fprintf(stderr, "Number of philosophers must be greater than 1.\n");
         return EXIT_FAILURE;
     }
@@ -80,12 +101,10 @@ int main(int argc, char* argv[]) {
     // Cleanup
     free(philosophers);
     free(ids);
-    printf("philo & ids\n");
 
     for (int i = 0; i < num_philosophers; ++i) {
         destroy_lock(forks[i]);
     }
-    printf("forks\n");
     
     destroy_lock(cycle_counter_lock);
 

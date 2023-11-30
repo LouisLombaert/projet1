@@ -1,0 +1,48 @@
+CC = gcc
+CFLAGS = -pthread -Wall
+
+all: locker sem philosophers prod_cons readers_writers philosophers_lock prod_cons_lock readers_writers_lock philosophers_sem prod_cons_sem readers_writers_sem
+
+philosophers: philosophers.c
+	$(CC) $(CFLAGS) -o philosophers philosophers.c
+
+prod_cons: prod_cons.c
+	$(CC) $(CFLAGS) -o prod_cons prod_cons.c
+
+readers_writers: readers_writers.c
+	$(CC) $(CFLAGS) -o readers_writers readers_writers.c
+
+locker: locker.c
+	$(CC) -c locker.c -o locker.o
+
+sem: sem.c
+	$(CC) -c sem.c -o sem.o
+
+philosophers_lock: philosophers_lock.c
+	$(CC) $(CFLAGS) -o philosophers_lock philosophers_lock.c locker.c
+
+prod_cons_lock: prod_cons_lock.c
+	$(CC) $(CFLAGS) -o prod_cons_lock prod_cons_lock.c locker.c
+
+readers_writers_lock: readers_writers_lock.c
+	$(CC) $(CFLAGS) -o readers_writers_lock readers_writers_lock.c locker.c
+
+philosophers_sem: philosophers_sem.c
+	$(CC) $(CFLAGS) -o philosophers_sem philosophers_sem.c locker.c sem.c
+
+prod_cons_sem: prod_cons_sem.c
+	$(CC) $(CFLAGS) -o prod_cons_sem prod_cons_sem.c locker.c sem.c
+
+readers_writers_sem: readers_writers_sem.c
+	$(CC) $(CFLAGS) -o readers_writers_sem readers_writers_sem.c locker.c sem.c
+
+clean:
+	rm -f philosophers philosophers_lock philosophers_sem prod_cons prod_cons_lock prod_cons_sem readers_writers readers_writers_lock readers_writers_sem *.o *.csv
+
+perf:
+	./perf.sh
+
+plot:
+	python3 plot.py
+
+run_all: perf plot

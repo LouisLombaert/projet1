@@ -1,4 +1,3 @@
-v1
 philo_time.csv
 prod_cons_time.csv
 readers_writers_time.csv
@@ -14,3 +13,7 @@ readers_writers_lock
 philosophers_sem
 prod_cons_sem
 readers_writers_sem
+
+locker.o
+locker_tts.o
+sem.o

@@ -1,4 +1,4 @@
-#include "locker.h"
+#include "locker_tts.h"
 
 locker_t *init_lock() {
     locker_t *locker = malloc(sizeof(locker_t));
@@ -16,7 +16,9 @@ void destroy_lock(locker_t *locker) {
 int lock(locker_t *locker) {
     int set = 1;
     while (set == 1) {
-        asm("xchgl  %0, %1" : "+q" (set), "+m" (locker->lock));
+        if(locker->lock==0) { // Test before TS
+            asm("xchgl  %0, %1" : "+q" (set), "+m" (locker->lock));
+        }
     }
     return EXIT_SUCCESS;
 }

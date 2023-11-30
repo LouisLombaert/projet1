@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
-#include "locker.h"  // Include the custom lock
+#include "../sem.h"
+#include "../locker_tts.h"
 
 #define NUM_READS 2560
 #define NUM_WRITES 640
@@ -12,78 +12,78 @@ int writers_count = 0;
 int write_count = 0;
 int read_count = 0;
 
-locker_t custom_lock;  // Use the custom lock
+locker_t* read_lock;
+locker_t* write_lock;
+locker_t* z_lock;
+
+sem_t* read_sem;
+sem_t* write_sem;
 
 void simulateAccess() {
-    for (int i = 0; i < 10000; ++i) {}
+    for (int i = 0; i < 10000; ++i);
 }
 
-void* reader(void* arg) {
-    //int reader_id = *((int*)arg);
+void* reader() {
+    for (int i=0; i<NUM_READS; i++) {
+        sem_wait(read_sem);
 
-    for (int i = 0; i < NUM_READS; i++) {
-        lock(&custom_lock);
-
+        lock(z_lock);
+        lock(read_lock);
         readers_count++;
+
         if (readers_count == 1) {
-            // First reader, block writers
-            unlock(&custom_lock);
+            lock(write_lock);
         }
 
-        unlock(&custom_lock);
-
-        read_count++;
-
-        // Critical Section: READ
+        unlock(read_lock);
+        unlock(z_lock);
+        
+        // READ()
         simulateAccess();
-        printf("Reader read data: %d\n", read_count);
-        // End Critical Section
+        read_count++;
+        // Fin READ
 
-        lock(&custom_lock);
-
+        lock(read_lock);
         readers_count--;
 
         if (readers_count == 0) {
-            // Last reader, unblock writers
-            unlock(&custom_lock);
+            unlock(write_lock);
         }
 
-        unlock(&custom_lock);
+        unlock(read_lock);
+
+        sem_post(read_sem);
     }
 
     return NULL;
 }
 
-void* writer(void* arg) {
-    //int writer_id = *((int*)arg);
-
-    for (int i = 0; i < NUM_WRITES; i++) {
-        lock(&custom_lock);
-
+void* writer() {
+    for (int i=0; i<NUM_WRITES; i++) {
+        sem_wait(write_sem);
+        lock(write_lock);
         writers_count++;
-        if (writers_count == 1) {
-            // First writer, block readers
-            unlock(&custom_lock);
+
+        if (writers_count == 1){
+            sem_wait(read_sem);
         }
 
-        unlock(&custom_lock);
+        unlock(write_lock);
 
-        // Critical Section: WRITE
-        write_count++;
+        //  WRITE()
         simulateAccess();
-        printf("Writer wrote data: %d\n", write_count);
-        // End Critical Section
+        write_count++;
+        //  FIN WRITE
 
-        lock(&custom_lock);
-
+        lock(write_lock);
         writers_count--;
 
-        if (writers_count == 0) {
-            // Last writer, unblock readers
-            unlock(&custom_lock);
+        if (writers_count == 0){
+            sem_post(read_sem);
         }
+        unlock(write_lock);
 
-        unlock(&custom_lock);
+        sem_post(write_sem);
     }
 
     return NULL;
@@ -105,8 +105,13 @@ int main(int argc, char* argv[]) {
 
     pthread_t readers[num_readers], writers[num_writers];
 
-    // Initialize the custom lock
-    locker_t* custom_lock = init_lock();
+    //locker
+    read_lock = init_lock();
+    write_lock = init_lock();
+    z_lock = init_lock();
+
+    read_sem = sem_init(1);
+    write_sem = sem_init(1);
 
     // Create reader threads
     for (int i = 0; i < num_readers; ++i) {
@@ -128,7 +133,10 @@ int main(int argc, char* argv[]) {
         pthread_join(writers[i], NULL);
     }
 
-    destroy_lock(custom_lock);
-
+    sem_destroy(write_sem);
+    sem_destroy(read_sem);
+    destroy_lock(read_lock);
+    destroy_lock(write_lock);
+    destroy_lock(z_lock);
     return 0;
 }
