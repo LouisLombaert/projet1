@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make
+make build
 
 # Function to run a benchmark for a given program and configuration
 run_benchmark() {

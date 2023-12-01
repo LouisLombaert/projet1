@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -pthread -Wall
 
-all: locker locker_tts sem philosophers prod_cons readers_writers philosophers_lock prod_cons_lock readers_writers_lock philosophers_sem prod_cons_sem readers_writers_sem
+all: build perf plot
 
 # Lockers & semaphore
 locker: locker.c
@@ -44,8 +44,11 @@ readers_writers_sem: tts/readers_writers_sem.c
 	$(CC) $(CFLAGS) -o readers_writers_sem tts/readers_writers_sem.c locker_tts.o sem.o
 
 # OTHER
-clean:
-	rm -f philosophers philosophers_lock philosophers_sem prod_cons prod_cons_lock prod_cons_sem readers_writers readers_writers_lock readers_writers_sem *.o *.csv *.png
+clean: clean_comp
+	rm -f  *.csv *.png
+
+clean_comp:
+	rm -f philosophers philosophers_lock philosophers_sem prod_cons prod_cons_lock prod_cons_sem readers_writers readers_writers_lock readers_writers_sem *.o
 
 perf:
 	./perf.sh
@@ -53,4 +56,4 @@ perf:
 plot:
 	python3 plot.py
 
-run_all: perf plot
+build: locker locker_tts sem philosophers prod_cons readers_writers philosophers_lock prod_cons_lock readers_writers_lock philosophers_sem prod_cons_sem readers_writers_sem

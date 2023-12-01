@@ -2,6 +2,14 @@ philo_time.csv
 prod_cons_time.csv
 readers_writers_time.csv
 
+philo_time_ts.csv
+prod_cons_time_ts.csv
+readers_writers_time_ts.csv
+
+philo_time_tts.csv
+prod_cons_time_tts.csv
+readers_writers_time_tts.csv
+
 philosophers
 prod_cons
 readers_writers
