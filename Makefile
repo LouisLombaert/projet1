@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -pthread -Wall
 
-all: build perf plot
+all: build experiments plot
 
 # Lockers & semaphore
 locker: locker.c
@@ -50,8 +50,8 @@ clean: clean_comp
 clean_comp:
 	rm -f philosophers philosophers_lock philosophers_sem prod_cons prod_cons_lock prod_cons_sem readers_writers readers_writers_lock readers_writers_sem *.o
 
-perf:
-	./perf.sh
+experiments:
+	./experiments.sh
 
 plot:
 	python3 plot.py

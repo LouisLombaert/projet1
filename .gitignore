@@ -25,3 +25,5 @@ readers_writers_sem
 locker.o
 locker_tts.o
 sem.o
+
+combined_plots.png

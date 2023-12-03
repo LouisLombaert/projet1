@@ -20,7 +20,7 @@ run_benchmark() {
 
     avg=$(echo "scale=3; $total_time / $NB_RUN" | bc)
 
-    echo "Total_time for $PROGRAM with $NB_THREADS threads: $total_time, avg time: $avg"
+    #echo "Total_time for $PROGRAM with $NB_THREADS threads: $total_time, avg time: $avg"
     echo "$NB_THREADS,$avg" >> "$OUTPUT_FILE"
 }
 
@@ -37,7 +37,7 @@ philosophers_lock_perf() {
 
     avg=$(echo "scale=3; $total_time / $NB_RUN" | bc)
 
-    echo "Total_time for philosophers_lock with $NB_THREADS threads: $total_time, avg time: $avg"
+    #echo "Total_time for philosophers_lock with $NB_THREADS threads: $total_time, avg time: $avg"
     echo "$NB_THREADS,$avg" >> "$OUTPUT_FILE"
 }
 
@@ -54,7 +54,7 @@ philosophers_tts_perf() {
 
     avg=$(echo "scale=3; $total_time / $NB_RUN" | bc)
 
-    echo "Total_time for philosophers_tts with $NB_THREADS threads: $total_time, avg time: $avg"
+    #echo "Total_time for philosophers_tts with $NB_THREADS threads: $total_time, avg time: $avg"
     echo "$NB_THREADS,$avg" >> "$OUTPUT_FILE"
 }
 
@@ -77,21 +77,21 @@ CSV_FILE_READERS_WRITERS_TTS="readers_writers_time_tts.csv"
 # Philosophers
 [ -e "$CSV_FILE_PHILOSOPHERS" ] && rm "$CSV_FILE_PHILOSOPHERS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running philosophers with $nb_threads threads..."
+    #echo "Running philosophers with $nb_threads threads..."
     run_benchmark "philosophers" "$nb_threads" "$CSV_FILE_PHILOSOPHERS"
 done
 
 # Prod/Cons
 [ -e "$CSV_FILE_PROD_CONS" ] && rm "$CSV_FILE_PROD_CONS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running prod/cons with $nb_threads threads..."
+    #echo "Running prod/cons with $nb_threads threads..."
     run_benchmark "prod_cons" "$nb_threads" "$CSV_FILE_PROD_CONS"
 done
 
 # Readers/Writers
 [ -e "$CSV_FILE_READERS_WRITERS" ] && rm "$CSV_FILE_READERS_WRITERS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running readers/writers with $nb_threads threads..."
+    #echo "Running readers/writers with $nb_threads threads..."
     run_benchmark "readers_writers" "$nb_threads" "$CSV_FILE_READERS_WRITERS"
 done
 
@@ -99,21 +99,21 @@ done
 # Philosophers Locker
 [ -e "$CSV_FILE_PHILOSOPHERS_TS" ] && rm "$CSV_FILE_PHILOSOPHERS_TS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running philosophers ts with $nb_threads threads..."
+    #echo "Running philosophers ts with $nb_threads threads..."
     philosophers_lock_perf "$nb_threads" "$CSV_FILE_PHILOSOPHERS_TS"
 done
 
 # Prod/Cons Locker
 [ -e "$CSV_FILE_PROD_CONS_TS" ] && rm "$CSV_FILE_PROD_CONS_TS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running prod/cons ts with $nb_threads threads..."
+    #echo "Running prod/cons ts with $nb_threads threads..."
     run_benchmark "prod_cons_lock" "$nb_threads" "$CSV_FILE_PROD_CONS_TS"
 done
 
 # Readers/Writers Locker
 [ -e "$CSV_FILE_READERS_WRITERS_TS" ] && rm "$CSV_FILE_READERS_WRITERS_TS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running readers/writers ts with $nb_threads threads..."
+    #echo "Running readers/writers ts with $nb_threads threads..."
     run_benchmark "readers_writers_lock" "$nb_threads" "$CSV_FILE_READERS_WRITERS_TS"
 done
 
@@ -121,20 +121,20 @@ done
 # Philosophers Locker
 [ -e "$CSV_FILE_PHILOSOPHERS_TTS" ] && rm "$CSV_FILE_PHILOSOPHERS_TTS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running philosophers tts with $nb_threads threads..."
+    #echo "Running philosophers tts with $nb_threads threads..."
     philosophers_tts_perf "$nb_threads" "$CSV_FILE_PHILOSOPHERS_TTS"
 done
 
 # Prod/Cons Locker
 [ -e "$CSV_FILE_PROD_CONS_TTS" ] && rm "$CSV_FILE_PROD_CONS_TTS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running prod/cons tts with $nb_threads threads..."
+    #echo "Running prod/cons tts with $nb_threads threads..."
     run_benchmark "prod_cons_sem" "$nb_threads" "$CSV_FILE_PROD_CONS_TTS"
 done
 
 # Readers/Writers Locker
 [ -e "$CSV_FILE_READERS_WRITERS_TTS" ] && rm "$CSV_FILE_READERS_WRITERS_TTS"
 for nb_threads in 2 4 8 16 32 64; do 
-    echo "Running readers/writers tts with $nb_threads threads..."
+    #echo "Running readers/writers tts with $nb_threads threads..."
     run_benchmark "readers_writers_sem" "$nb_threads" "$CSV_FILE_READERS_WRITERS_TTS"
 done
