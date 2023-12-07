@@ -11,7 +11,7 @@ int writers_count = 0;
 int write_count = 0;
 int read_count = 0;
 
-sem_t write_sem, read_sem; // 3 sems ??
+sem_t write_sem, read_sem;
 pthread_mutex_t read_mutex, write_mutex, z;
 
 void simulateAccess() {
@@ -19,8 +19,6 @@ void simulateAccess() {
 }
 
 void* reader(void* arg) {
-    //int reader_id = *((int*)arg);
-
     for (int i=0; i<NUM_READS; i++) {
         pthread_mutex_lock(&z);
         sem_wait(&read_sem);
@@ -36,14 +34,9 @@ void* reader(void* arg) {
         pthread_mutex_unlock(&z);
         read_count++;
 
-        ///////////////////////////////
         // READ()
-
         simulateAccess();
-        //printf("Reader %d read data: %d\n", reader_id, read_count);
-
-        // Fin READ
-        //////////////////////////////
+        // Fin READ$
 
         pthread_mutex_lock(&read_mutex);
         readers_count--;
@@ -59,8 +52,6 @@ void* reader(void* arg) {
 }
 
 void* writer(void* arg) {
-    //int writer_id = *((int*)arg);
-
     for (int i=0; i<NUM_WRITES; i++) {
         pthread_mutex_lock(&write_mutex);
         writers_count++;
@@ -71,14 +62,9 @@ void* writer(void* arg) {
         sem_wait(&write_sem);
         write_count++;
 
-        ///////////////////////////////////
         //  WRITE()
-
         simulateAccess();
-        //printf("Writer %d wrote data: %d\n", writer_id, write_count);
-
         //  FIN WRITE
-        //////////////////////////////////
 
         sem_post(&write_sem);
         pthread_mutex_lock(&write_mutex);
@@ -109,7 +95,6 @@ int main(int argc, char* argv[]) {
     pthread_t readers[num_readers], writers[num_writers];
     int reader_ids[num_readers], writer_ids[num_writers];
 
-    //sem_init(&mutex, 0, 1);
     sem_init(&write_sem, 0, 1);
     sem_init(&read_sem, 0, 1);
     
@@ -153,7 +138,6 @@ int main(int argc, char* argv[]) {
         pthread_join(writers[i], NULL);
     }
 
-    //sem_destroy(&mutex);
     sem_destroy(&write_sem);
     sem_destroy(&read_sem);
     pthread_mutex_destroy(&read_mutex);

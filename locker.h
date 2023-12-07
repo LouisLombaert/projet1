@@ -12,4 +12,4 @@ void destroy_lock(locker_t *locker);
 int lock(locker_t *locker);
 int unlock(locker_t *locker);
 
-#endif // LOCKER_H
+#endif

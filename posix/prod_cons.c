@@ -1,4 +1,3 @@
-// prod_cons.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -12,7 +11,7 @@ int in = 0, out = 0;
 
 sem_t empty, full, mutex;
 
-void simulateProcessing() {
+void simulateProcessing() { 
     for (int i = 0; i < 10000; ++i);
 }
 
